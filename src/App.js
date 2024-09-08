@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as mobilenet from '@tensorflow-models/mobilenet';
-import * as toxicity from '@tensorflow-models/toxicity'; // Import Toxicity model
+import * as toxicity from '@tensorflow-models/toxicity';
 import '@tensorflow/tfjs';
 
 function App() {
@@ -10,6 +10,7 @@ function App() {
   const [textAnalysis, setTextAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Handle Image Upload and Classification
   const handleImageUpload = async (e) => {
     const imgFile = e.target.files[0];
     if (!imgFile) return;
@@ -26,25 +27,25 @@ function App() {
     };
   };
 
+  // Handle Text Input Change
   const handleTextChange = (e) => {
     setText(e.target.value);
   };
 
+  // Analyze Text for Toxicity
   const analyzeText = async () => {
     setLoading(true);
-  
-    // Load the model with a lower threshold (e.g., 0.8 for more sensitivity)
-    const model = await toxicity.load(0.6);  // Reduce the threshold for better detection
+
+    const model = await toxicity.load(0.7);  // Lower threshold for better sensitivity
     const predictions = await model.classify([text]);
-  
+
     setTextAnalysis(predictions);
     setLoading(false);
   };
-  
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
-      <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">AI-Powered App</h1>
+      <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">Image Recognition and Text Analyzing with AI</h1>
 
       {/* Image Upload Section */}
       <div className="mb-6 w-full max-w-md">
@@ -82,7 +83,16 @@ function App() {
             <ul>
               {textAnalysis.map((item, index) => (
                 <li key={index} className="mt-2">
-                  <strong>{item.label}:</strong> {item.results[0].match ? 'Toxic' : 'Not Toxic'}
+                  <strong>{item.label}:</strong>{' '}
+                  <span
+                    className={`${
+                      item.results[0].match
+                        ? 'text-red-500 font-bold' // Toxic labels in red
+                        : 'text-green-500' // Non-toxic labels in green
+                    }`}
+                  >
+                    {item.results[0].match ? 'Toxic' : 'Not Toxic'}
+                  </span>
                 </li>
               ))}
             </ul>
